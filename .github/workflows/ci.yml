@@ -27,7 +27,7 @@ jobs:
         env:
           DAGSHUB_USER_TOKEN: ${{ secrets.DAGSHUB_TOKEN }}
         run: |
-          cd MLProject
+          cd MLproject
           mlflow run . --env-manager=local \
             -P n_estimators=100 \
             -P max_depth=10 \
@@ -35,7 +35,7 @@ jobs:
 
       - name: Build Docker Image
         run: |
-          cd MLProject
+          cd MLproject
           mlflow models build-docker \
             -m "runs:/$(mlflow runs list --experiment-name WineQuality_CI \
                 --output-format json | python3 -c \
@@ -55,8 +55,8 @@ jobs:
 
       - name: Save Artifacts to GitHub
         run: |
-          cp MLProject/confusion_matrix.png .
-          cp MLProject/feature_importance.png .
+          cp MLproject/confusion_matrix.png .
+          cp MLproject/feature_importance.png .
           git config --global user.name "github-actions"
           git config --global user.email "actions@github.com"
           git add confusion_matrix.png feature_importance.png
