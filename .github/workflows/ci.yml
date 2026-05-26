@@ -28,10 +28,7 @@ jobs:
           DAGSHUB_USER_TOKEN: ${{ secrets.DAGSHUB_TOKEN }}
         run: |
           cd MLproject
-          mlflow run . --env-manager=local \
-            -P n_estimators=100 \
-            -P max_depth=10 \
-            -P test_size=0.2
+         mlflow run . --env-manager=local -P n_estimators=100 -P max_depth=10 -P test_size=0.2
 
       - name: Build Docker Image
         run: |
