@@ -1,5 +1,4 @@
 name: CI MLflow Workflow
-
 on:
   push:
     branches: [main]
