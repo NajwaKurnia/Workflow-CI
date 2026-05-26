@@ -1,11 +1,9 @@
 name: CI MLflow Workflow
+
 on:
   push:
     branches: [main]
   workflow_dispatch:
-
-permissions:
-  contents: write
 
 jobs:
   train-and-deploy:
@@ -21,38 +19,39 @@ jobs:
           python-version: '3.10'
 
       - name: Install Dependencies
-        run: pip install mlflow dagshub scikit-learn pandas numpy matplotlib seaborn
+        run: |
+          pip install mlflow dagshub scikit-learn pandas \
+                      numpy matplotlib seaborn conda-lock
 
       - name: Run MLflow Project
         env:
           DAGSHUB_USER_TOKEN: ${{ secrets.DAGSHUB_TOKEN }}
         run: |
           cd MLproject
-          mlflow run . --env-manager=local -P n_estimators=100 -P max_depth=10 -P test_size=0.2
+          mlflow run . --env-manager=local \
+            -P n_estimators=100 \
+            -P max_depth=10 \
+            -P test_size=0.2
 
-      - name: Get Run ID and Build Docker Image
-        env:
-          DAGSHUB_USER_TOKEN: ${{ secrets.DAGSHUB_TOKEN }}
+      - name: Build Docker Image
         run: |
-          cat > get_run_id.py << 'EOF'
-          import mlflow, dagshub
-          dagshub.init(repo_owner='NajwaKurnia', repo_name='Ekperimen_SML_Najwa-Kurnia', mlflow=True)
-          client = mlflow.tracking.MlflowClient()
-          exp = client.get_experiment_by_name('WineQuality_CI')
-          runs = client.search_runs(exp.experiment_id, order_by=['start_time DESC'], max_results=1)
-          print(runs[0].info.run_id)
-          EOF
-          RUN_ID=$(python3 get_run_id.py)
-          echo "Run ID: $RUN_ID"
-          mlflow models build-docker -m "runs:/$RUN_ID/model" -n "najwakurnia/wine-quality-model"
+          cd MLproject
+          mlflow models build-docker \
+            -m "runs:/$(mlflow runs list --experiment-name WineQuality_CI \
+                --output-format json | python3 -c \
+                "import sys,json; runs=json.load(sys.stdin); \
+                print(runs[0]['run_id'])")/model" \
+            -n "NajwaKurnia/wine-quality-model" \
+            --enable-mlserver
 
       - name: Push Docker Image to Docker Hub
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
         run: |
-          echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-          docker push najwakurnia/wine-quality-model
+          echo "$DOCKER_PASSWORD" | docker login \
+            -u "$DOCKER_USERNAME" --password-stdin
+          docker push NajwaKurnia/wine-quality-model
 
       - name: Save Artifacts to GitHub
         run: |
