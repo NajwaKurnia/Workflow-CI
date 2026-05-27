@@ -50,10 +50,16 @@ jobs:
           client = mlflow.tracking.MlflowClient()
           exps = client.search_experiments()
           for e in exps:
-              runs = client.search_runs(e.experiment_id, order_by=['start_time DESC'], max_results=1)
-              if runs:
-                  print(runs[0].info.run_id)
-                  break
+              runs = client.search_runs(
+                  e.experiment_id,
+                  order_by=['start_time DESC'],
+                  max_results=10
+              )
+              for run in runs:
+                  artifacts = client.list_artifacts(run.info.run_id, "model")
+                  if artifacts:
+                      print(run.info.run_id)
+                      exit()
           EOF
           RUN_ID=$(python3 get_run_id.py)
           echo "Run ID: $RUN_ID"
