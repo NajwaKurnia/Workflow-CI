@@ -50,6 +50,7 @@ jobs:
           client = mlflow.tracking.MlflowClient()
           exps = client.search_experiments()
           for e in exps:
+              print(f"Experiment: {e.name}")
               runs = client.search_runs(
                   e.experiment_id,
                   order_by=['start_time DESC'],
@@ -57,10 +58,11 @@ jobs:
               )
               if runs:
                   run_id = runs[0].info.run_id
-                  print(run_id)
-                  break
+                  print(f"Run ID: {run_id}")
+                  artifacts = client.list_artifacts(run_id)
+                  print(f"Artifacts: {[a.path for a in artifacts]}")
           EOF
-          RUN_ID=$(python3 get_run_id.py)
+          python3 get_run_id.py
           echo "Run ID: $RUN_ID"
           echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
           mlflow models build-docker -m "runs:/$RUN_ID/model" -n "najwakurnia/wine-qulity-model"
