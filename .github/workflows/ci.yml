@@ -57,8 +57,8 @@ jobs:
           ")
           echo "Run ID: $RUN_ID"
           echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-          mlflow models build-docker -m "runs:/$RUN_ID/model" -n "najwakurnia/wine-qulity-model"
-          docker push najwakurnia/wine-qulity-model
+          mlflow models build-docker -m "runs:/$RUN_ID/model" -n "NajwaKurnia/wine-qulity-model"
+          docker push NajwaKurnia/wine-qulity-model
 
       - name: Save Artifacts to GitHub
         run: |
