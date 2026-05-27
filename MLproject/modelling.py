@@ -79,5 +79,4 @@ with mlflow.start_run(run_name="CI_RandomForest"):
     plt.close()
 
     mlflow.sklearn.log_model(model, "model")
-    mlflow.register_model("runs:/<run_id>/model", "wine-quality-model")
     print(f"Accuracy: {acc:.4f} | ROC-AUC: {roc:.4f}")
