@@ -34,7 +34,6 @@ X_train, X_test, y_train, y_test = train_test_split(
 )
 
 # MLflow Manual Logging 
-mlflow.set_experiment("WineQuality_CI")
 
 with mlflow.start_run(run_name="CI_RandomForest"):
 
