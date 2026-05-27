@@ -5,6 +5,9 @@ on:
     branches: [main]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   train-and-deploy:
     runs-on: ubuntu-latest
@@ -19,9 +22,7 @@ jobs:
           python-version: '3.10'
 
       - name: Install Dependencies
-        run: |
-          pip install mlflow dagshub scikit-learn pandas \
-                      numpy matplotlib seaborn conda-lock
+        run: pip install mlflow dagshub scikit-learn pandas numpy matplotlib seaborn
 
       - name: Run MLflow Project
         env:
@@ -31,30 +32,7 @@ jobs:
           MLFLOW_TRACKING_PASSWORD: ${{ secrets.DAGSHUB_TOKEN }}
         run: |
           cd MLproject
-          mlflow run . --env-manager=local \
-            -P n_estimators=100 \
-            -P max_depth=10 \
-            -P test_size=0.2
-
-      - name: Build Docker Image
-        run: |
-          cd MLproject
-          mlflow models build-docker \
-            -m "runs:/$(mlflow runs list --experiment-name WineQuality_CI \
-                --output-format json | python3 -c \
-                "import sys,json; runs=json.load(sys.stdin); \
-                print(runs[0]['run_id'])")/model" \
-            -n "NajwaKurnia/wine-qulity-model" \
-            --enable-mlserver
-
-      - name: Push Docker Image to Docker Hub
-        env:
-          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-        run: |
-          echo "$DOCKER_PASSWORD" | docker login \
-            -u "$DOCKER_USERNAME" --password-stdin
-          docker push NajwaKurnia/wine-qulity-model
+          mlflow run . --env-manager=local -P n_estimators=100 -P max_depth=10 -P test_size=0.2
 
       - name: Save Artifacts to GitHub
         run: |
