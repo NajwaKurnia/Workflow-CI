@@ -58,8 +58,8 @@ jobs:
           ")
           echo "Run ID: $RUN_ID"
           echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-          docker build -t NajwaKurnia/wine-qulity-model ./MLproject
-          docker push NajwaKurnia/wine-qulity-model
+          docker build -t najwakurnia/wine-qulity-model ./MLproject
+          docker push najwakurnia/wine-qulity-model
 
       - name: Save Artifacts to GitHub
         run: |
