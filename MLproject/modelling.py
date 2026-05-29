@@ -6,6 +6,7 @@ import mlflow
 import mlflow.sklearn
 import dagshub
 import argparse
+import os
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, confusion_matrix, roc_auc_score
@@ -16,6 +17,10 @@ parser.add_argument("--n_estimators", type=int, default=100)
 parser.add_argument("--max_depth", type=int, default=10)
 parser.add_argument("--test_size", type=float, default=0.2)
 args = parser.parse_args()
+
+token = os.environ.get("DAGSHUB_TOKEN", "")
+os.environ["MLFLOW_TRACKING_USERNAME"] = token
+os.environ["MLFLOW_TRACKING_PASSWORD"] = token
 
 # Setup DagsHub
 dagshub.init(
